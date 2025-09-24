@@ -3,12 +3,14 @@
 본 프로젝트는 교육생과 멘토 간의 학습 교류를 돕고, 교육생들의 학습을 도와주기 위해 설계된 웹 기반 커뮤니티 플랫폼의 백엔드 레포입니다.
 
 - 접속 도메인 : https://siathub.com (게스트 계정 guest / 1234)
-
+- 
+---
 # 개발 환경
 - JAVA 17/spring boot 3.5.0
 - gradle 8.14
 - redis 7, postgreSQL 14.2(rds ver)
 - util dependency : p6spy, slf4j, swagger(openapi), junit5
+---
 
 ## 🧩 주요 기능
 
@@ -39,6 +41,8 @@
 
 * 멘토/멘티별 알림 조회 및 삭제 가능
 * 예약, 수락, 완료, 댓글 등 주요 이벤트 기반 알림 발송
+
+---
 
 
 # 협업을 위한 규칙
