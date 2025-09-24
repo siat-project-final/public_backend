@@ -1,0 +1,81 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.5.0'
+	id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.takoyakki'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	// 웹
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.apache.commons:commons-compress:1.26.2'
+
+	// db
+	runtimeOnly 'com.h2database:h2'
+	runtimeOnly 'org.postgresql:postgresql'
+
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.4'
+
+	// 보안
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'javax.validation:validation-api:2.0.1.Final'
+
+	// 관리자
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
+	// jwt
+	implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
+	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
+	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
+
+	// 유틸
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6'
+
+	compileOnly 'org.projectlombok:lombok'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	annotationProcessor 'org.projectlombok:lombok'
+
+	implementation 'p6spy:p6spy:3.9.1'
+
+	// 테스트
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	// 빌드
+
+
+
+
+
+
+
+
+
+
+
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.takoyakki.backend.domain.challenge.repository.ProblemsMapper">
+    <insert id="insertProblem"  parameterType="ProblemsInsertRequestDto">
+        INSERT INTO problems (
+            title,
+            contents,
+            difficulty,
+            subject,
+            correct_answer,
+            choices
+        ) VALUES (
+            #{title},
+            #{contents},
+            #{difficulty},
+            #{subject},
+            #{correctAnswer},
+            CAST(#{choices, jdbcType=OTHER, typeHandler=com.takoyakki.backend.common.util.JsonbTypeHandler} AS jsonb)
+        )
+    </insert>
+
+    <select id="selectProblem" parameterType="java.lang.Long" resultType="ProblemSolvingSubmitResponseDto">
+        SELECT
+            difficulty,
+            correct_answer AS answer
+        FROM
+            problems
+        WHERE
+            problem_id = #{problemId}
+    </select>
+
+    <select id="selectChallengeProblems" resultType="ProblemsSelectResponseDto">
+        SELECT
+            problem_id,
+            title,
+            correct_answer,
+            difficulty,
+            contents,
+            subject,
+            choices
+        FROM
+            problems
+        WHERE
+            created_at::date = CURRENT_DATE
+        LIMIT 5;
+    </select>
+
+<!--    selectProblemSolvingResult-->
+    <select id="selectProblemSolvingResult" resultType="ProblemSolvingResultResponseDto">
+        SELECT
+            ps.problem_id AS problemId,
+            p.title,
+            p.difficulty AS difficulty,
+            p.correct_answer AS correctAnswer,
+            ps.submit_answer AS submitAnswer,
+            ps.is_correct AS correct,
+            p.choices AS options
+        FROM
+            problem_solving ps
+        LEFT OUTER JOIN
+            problems p ON ps.problem_id = p.problem_id
+        WHERE
+            ps.member_id = #{memberId}
+        AND
+            date::date = CAST(#{date} AS DATE)
+    </select>
+
+
+</mapper>

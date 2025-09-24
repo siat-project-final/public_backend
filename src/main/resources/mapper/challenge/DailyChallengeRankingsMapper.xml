@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.takoyakki.backend.domain.challenge.repository.DailyChallengeRankingsMapper">
+
+    <insert id="insertDailyChallengeRanking" parameterType="java.util.List">
+        INSERT INTO daily_challenge_rankings
+        (
+            member_id,
+            rank_level,
+            points,
+            date,
+            updated_at
+        )
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+                #{item.memberId},
+                #{item.rank},
+                #{item.totalPoints},
+                #{item.date},
+                NOW()
+            )
+        </foreach>
+    </insert>
+
+    <select id="selectChallengeRanksByMemberId" resultType="ChallengeRankResponseDto">
+        SELECT DISTINCT
+            r.member_id AS memberId,
+            m.member_name AS memberName,
+            r.rank_level AS rank,
+            r.points AS totalPoints,
+            r.date,
+            p.subject AS subject
+        FROM
+            daily_challenge_rankings r
+        LEFT OUTER JOIN
+            members m ON r.member_id = m.member_id
+        LEFT OUTER JOIN
+            problems p ON r.date = p.created_at::date
+        WHERE
+            r.member_id = #{memberId}
+        ORDER BY
+            r.date DESC
+    </select>
+
+    <select id="selectChallengeCount" resultType="int">
+        SELECT
+            COUNT(*)
+        FROM
+            daily_challenge_rankings
+        WHERE
+            member_id = #{memberId}
+    </select>
+
+</mapper>

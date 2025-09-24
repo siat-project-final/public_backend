@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.takoyakki.backend.domain.studyDiary.repository.DiaryCommentMapper">
+    <select id="selectDiaryComments" resultType="DiaryCommentsSelectResponseDto">
+        SELECT
+            c.comment_id AS commentId,
+            m.member_name AS memberName,
+            c.contents,
+            c.updated_at AS date
+        FROM
+            diary_comments c
+        LEFT OUTER JOIN
+            members m ON c.member_id = m.member_id
+        WHERE
+            diary_id = #{diaryId}
+          AND c.is_deleted = FALSE
+    </select>
+
+    <insert id="insertDiaryComment" parameterType="DiaryCommentsInsertRequestDto">
+    INSERT INTO diary_comments
+        (
+            diary_id,
+            member_id,
+            contents
+        )
+    VALUES
+        (
+            #{diaryId},
+            #{memberId},
+            #{contents}
+        )
+    </insert>
+
+    <update id="updateDiaryComment">
+        UPDATE diary_comments
+        SET contents = #{dto.contents},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE comment_id = #{commentId}
+          AND member_id = #{dto.memberId}
+    </update>
+
+    <update id="deleteDiaryComment">
+        UPDATE diary_comments
+        SET is_deleted = TRUE,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE comment_id = #{commentId}
+          AND member_id = #{dto.memberId}
+    </update>
+
+</mapper>

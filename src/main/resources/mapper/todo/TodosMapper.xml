@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.takoyakki.backend.domain.todo.repository.TodosMapper">
+
+    <!-- 전체 할 일 목록 조회 (날짜 필터 가능) -->
+<!--    selectAllTodos-->
+    <select id="selectAllTodos" resultType="TodoSelectResponseDto">
+        SELECT
+            todo_id AS id,
+            member_id AS memberId,
+            contents,
+            date::date AS date,
+            is_checked AS isChecked,
+            created_at AS createdAt,
+            updated_at AS updatedAt
+        FROM
+            todos
+        WHERE
+            member_id = #{memberId}
+        AND
+            is_deleted = FALSE
+        <if test="date != null and date != ''">
+            AND
+                date::date = CAST(#{date} AS DATE)
+        </if>
+        ORDER BY
+            date::date
+    </select>
+
+    <!-- ID 기준 단일 할 일 조회 -->
+    <select id="selectTodoById" resultType="TodoSelectResponseDto">
+        SELECT
+            todo_id AS id,
+            member_id,
+            contents AS content,
+            FORMATDATETIME(date, 'yyyy-MM-dd') AS date,
+        FORMATDATETIME(date, 'HH:mm') AS time,
+        is_checked AS isImportant,
+        created_at,
+        updated_at
+        FROM
+            todos
+        WHERE
+            todo_id = #{id}
+          AND is_deleted = FALSE
+    </select>
+    <!-- 할 일 등록 -->
+<!--    insertTodo-->
+    <insert id="insertTodo" parameterType="TodoCreateRequestDto"
+            useGeneratedKeys="true"
+            keyProperty="todoId">
+        INSERT INTO todos (
+            member_id,
+            contents,
+            date,
+            is_checked,
+            is_deleted,
+            created_at,
+            updated_at
+        )
+        VALUES
+        (
+            #{memberId},
+            #{contents},
+            CAST(#{date} AS DATE),
+            FALSE,
+            FALSE,
+            NOW(),
+            NOW()
+        )
+    </insert>
+
+    <!-- 할 일 수정 -->
+    <update id="updateTodo">
+        UPDATE
+            todos
+        SET
+            contents = #{request.contents},
+            is_checked = #{request.isChecked},
+            updated_at = NOW()
+        WHERE
+            todo_id = #{id}
+        AND
+            is_deleted = FALSE
+    </update>
+
+    <!-- 할 일 소프트 삭제 -->
+    <update id="softDeleteTodo">
+        UPDATE
+            todos
+        SET
+            is_deleted = TRUE,
+            updated_at = NOW()
+        WHERE
+            todo_id = #{id}
+    </update>
+
+    <select id="selectTodoListInMonthByMemberId" resultType="CalendarItemTodoByDateDto">
+        SELECT
+            date,
+            todo_id,
+            contents,
+            is_checked AS isChecked
+        FROM
+            todos
+        WHERE
+            is_deleted = FALSE
+        AND
+            member_id = #{memberId}
+        AND
+            date BETWEEN #{startDate} AND #{endDate};
+    </select>
+
+    <update id="updateTodoToggle">
+        UPDATE
+            todos
+        SET
+            is_checked = NOT is_checked,
+            updated_at = NOW()
+        WHERE
+            todo_id = #{id}
+        AND
+            is_deleted = FALSE;
+    </update>
+</mapper>

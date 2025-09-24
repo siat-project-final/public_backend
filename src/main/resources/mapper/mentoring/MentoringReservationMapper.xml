@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.takoyakki.backend.domain.mentoring.repository.MentoringReservationMapper">
+
+    <resultMap id="MentoringReservationResponseMap" type="MentoringReservationResponseDto">
+        <result property="reservationId" column="reservation_id" />
+        <result property="mentorId" column="mentor_id" />
+        <result property="mentorName" column="mentor_name" />
+        <result property="menteeId" column="mentee_id" />
+        <result property="menteeName" column="mentee_name" />
+        <result property="mentorImageUrl" column="mentor_image_url" />
+        <result property="openChatUrl" column="open_chat_url" />
+        <result property="date" column="date" />
+        <result property="status" column="status" />
+        <result property="subject" column="subject" />
+        <result property="mentorMemberId" column="mentor_member_id" />
+    </resultMap>
+
+    <!-- insertReservation -->
+    <insert id="insertReservation"
+            parameterType="MenteeReservationRequestDto"
+            useGeneratedKeys="true"
+            keyProperty="reservationId">
+        INSERT INTO mentorings_reservation (
+            mentor_id,
+            mentee_id,
+            introduction,
+            subject,
+            date
+        )
+        VALUES
+        (
+           #{mentorId},
+           #{menteeId},
+           #{introduction},
+           #{subject},
+            CAST(#{date} AS DATE)
+        )
+    </insert>
+
+    <!-- 멘토 기준 예약 목록 조회 -->
+    <select id="selectReservationsByMentorId" parameterType="long" resultMap="MentoringReservationResponseMap">
+        SELECT
+            r.reservation_id AS reservation_id,
+            r.mentee_id,
+            r.date,
+            r.subject,
+            r.status,
+            m.member_name AS mentee_name,
+            o.mentor_name AS mentor_name,
+            o.mentor_image_url AS mentor_image_url,
+            o.open_chat_url AS open_chat_url
+        FROM
+            mentorings_reservation r
+        LEFT OUTER JOIN
+            members m ON r.mentee_id = m.member_id
+        LEFT OUTER JOIN
+            mentors o ON r.mentor_id = o.mentor_id
+        WHERE
+            r.mentor_id = #{mentorId}
+        ORDER BY
+            r.date DESC
+    </select>
+
+    <!-- 멘티 기준 예약 목록 조회 -->
+    <select id="selectReservationsByMenteeId" parameterType="long" resultMap="MentoringReservationResponseMap">
+        SELECT
+            r.reservation_id AS reservation_id,
+            r.mentor_id,
+            r.date,
+            r.subject,
+            r.status,
+            m.member_name AS mentee_name,
+            o.mentor_name AS mentor_name,
+            o.mentor_image_url AS mentor_image_url,
+            o.open_chat_url AS open_chat_url
+        FROM
+            mentorings_reservation r
+        LEFT OUTER JOIN
+            members m ON r.mentee_id = m.member_id
+        LEFT OUTER JOIN
+            mentors o ON r.mentor_id = o.mentor_id
+        WHERE
+            r.mentee_id = #{menteeId}
+            AND (r.is_hidden_by_mentee IS NULL OR r.is_hidden_by_mentee = FALSE)
+        ORDER BY
+            r.date DESC
+    </select>
+
+    <!-- 예약 수락 -->
+    <update id="updateReservationToAccepted" parameterType="java.lang.Long">
+        UPDATE
+            mentorings_reservation
+        SET
+            status = 'ACCEPTED',
+            updated_at = NOW()
+        WHERE
+            reservation_id = #{reservationId}
+    </update>
+
+    <!-- 예약 거절 -->
+    <update id="updateReservationToRejected" parameterType="map">
+        UPDATE
+            mentorings_reservation
+        SET
+            status = 'REJECTED',
+            reject_reason = #{rejectReason},
+            updated_at = NOW()
+        WHERE
+            reservation_id = #{reservationId}
+    </update>
+
+    <!-- 예약 취소 -->
+    <update id="cancelReservation" parameterType="map">
+        UPDATE
+            mentorings_reservation
+        SET
+            status = 'CANCELLED',
+            cancel_reason = #{cancelReason},
+            updated_at = NOW()
+        WHERE
+            reservation_id = #{reservationId}
+    </update>
+
+    <!-- 예약 상태 수동 변경 -->
+    <!-- <update id="updateReservationToCompleted">
+        UPDATE
+            mentorings_reservation
+        SET
+            status = 'COMPLETED',
+            updated_at = NOW()
+        WHERE
+            reservation_id = #{reservationId}
+    </update> -->
+    <update id="updateReservationToCompleted" parameterType="java.lang.Long">
+        UPDATE
+            mentorings_reservation
+        SET
+            status = 'COMPLETED',
+            updated_at = NOW()
+        WHERE
+            reservation_id = #{reservationId}
+    </update>
+    <!-- 월별 멘토링 조회 -->
+<!--    selectMentoringReservationListInMonthByMemberId-->
+    <select id="selectMentoringReservationListInMonthByMemberId" resultType="CalendarItemMentoringReservationByDateDto">
+        SELECT
+            m.date::date AS date,
+            m.reservation_id AS reservationId,
+            o.mentor_name AS mentorName
+        FROM
+            mentorings_reservation m
+        LEFT OUTER JOIN
+            mentors o ON m.mentor_id = o.mentor_id
+        WHERE
+            m.date::date BETWEEN CAST(#{startDate} AS DATE) AND CAST(#{endDate} AS DATE)
+        AND
+            status NOT IN ('COMPLETED', 'REJECTED', 'CANCELLED', 'PENDING')
+        AND
+            m.mentee_id = #{memberId}
+    </select>
+
+    <select id="selectMentoringReservationInfoById" resultMap="MentoringReservationResponseMap">
+        SELECT
+            r.reservation_id AS reservation_id,
+            r.mentor_id,
+            r.mentee_id,
+            r.introduction,
+            r.subject,
+            r.date,
+            r.status,
+            m.member_name AS mentee_name,
+            o.mentor_name AS mentor_name,
+            o.mentor_image_url AS mentor_image_url,
+            o.open_chat_url AS open_chat_url,
+            o.open_chat_url AS open_chat_url,
+            o.member_id AS mentor_member_id
+        FROM
+            mentorings_reservation r
+        LEFT OUTER JOIN
+            members m ON r.mentee_id = m.member_id
+        LEFT OUTER JOIN
+            mentors o ON r.mentor_id = o.mentor_id
+        WHERE
+            r.reservation_id = #{reservationId}
+    </select>
+    <!-- 예약 목록 닫기 -->
+    <update id="hideReservationByMentee" parameterType="java.lang.Long">
+        UPDATE mentorings_reservation
+        SET is_hidden_by_mentee = TRUE,
+            updated_at = NOW()
+        WHERE reservation_id = #{reservationId}
+    </update>
+
+    <!-- 예약 목록 닫기 / 멘토 -->
+    <update id="hideReservationByMentor" parameterType="long">
+        UPDATE mentorings_reservation
+        SET is_hidden_by_mentor = TRUE,
+            updated_at = NOW()
+        WHERE reservation_id = #{reservationId}
+    </update>
+</mapper>

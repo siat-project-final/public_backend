@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.takoyakki.backend.domain.mentoring.repository.MentoringMapper">
+
+    <!-- 멘토링 완료 처리 -->
+    <insert id="completeMentoring" parameterType="MentoringCompleteRequestDto">
+        INSERT INTO mentorings (
+            mentor_id,
+            mentee_id,
+            reservation_id,
+            status,
+            created_at
+        ) VALUES (
+            #{mentorId},
+            #{menteeId},
+            #{mentoringReservationId},
+            'COMPLETED',
+            NOW()
+        )
+    </insert>
+
+    <!-- 멘토링 상태 수동 변경 -->
+    <update id="updateMentoringStatus">
+        UPDATE mentoring
+        SET status = #{status}
+        WHERE reservation_id = #{reservationId}
+    </update>
+
+    <!-- 오픈채팅 URL 조회 -->
+    <select id="selectOpenChatUrlByReservationId" resultType="string">
+        SELECT
+            o.open_chat_url
+        FROM mentorings m
+        LEFT OUTER JOIN
+            mentors o ON m.mentor_id = o.mentor_id
+        WHERE reservation_id = #{reservationId}
+    </select>
+
+    <!-- 멘토 상세조회 (멘토 수락 시 조회하는 DTO) -->
+    <select id="findById" resultType="com.takoyakki.backend.domain.mentoring.dto.reservation.MentoringReservationAcceptResponseDto">
+        SELECT
+            r.id AS reservationId,
+            r.mentee_id,
+            m.mentor_id,
+            m.mentor_name,
+            m.mentor_image_url,
+            m.open_chat_url,
+            r.scheduled_at,
+            r.status
+        FROM mentoring m
+        JOIN reservation r ON m.reservation_id = r.id
+        WHERE m.mentor_id = #{mentorId}
+    </select>
+
+    <!-- 멘토링 단건 조회 -->
+    <select id="selectMentoringResponseById" resultType="com.takoyakki.backend.domain.mentoring.dto.mentoring.MentoringResponseDto">
+        SELECT
+            m.mentoring_id AS mentoringId,
+            o.mentor_name AS mentorName,
+            e.member_name AS menteeName,
+            m.created_at AS createdAt,
+            m.status
+        FROM
+            mentorings m
+        LEFT OUTER JOIN
+            mentors o ON m.mentor_id = o.mentor_id
+        LEFT OUTER JOIN
+            members e ON m.mentor_id = e.member_id
+        WHERE
+            mentoring_id = #{id}
+    </select>
+
+    <!-- 멘토 기준 완료된 멘토링 목록 -->
+    <select id="selectCompletedMentoringsByMentorId" resultType="MentoringResponseDto">
+        SELECT
+            m.mentoring_id AS mentoringId,
+            o.mentor_name AS mentorName,
+            e.member_name AS menteeName,
+            m.created_at AS createdAt,
+            m.status
+        FROM
+            mentorings m
+        LEFT OUTER JOIN
+            mentors o ON m.mentor_id = o.mentor_id
+        LEFT OUTER JOIN
+            members e ON m.mentor_id = e.member_id
+        WHERE
+            m.mentor_id = #{mentorId}
+          AND
+            m.status = 'COMPLETED'
+        ORDER BY
+            m.created_at DESC
+    </select>
+
+    <!-- 멘티 기준 완료된 멘토링 목록 -->
+    <select id="selectCompletedMentoringsByMenteeId" resultType="MentoringResponseDto">
+        SELECT
+            m.mentoring_id AS mentoringId,
+            o.mentor_name AS mentorName,
+            e.member_name AS menteeName,
+            m.created_at AS createdAt,
+            m.status
+        FROM
+            mentorings m
+        LEFT OUTER JOIN
+            mentors o ON m.mentor_id = o.mentor_id
+        LEFT OUTER JOIN
+            members e ON m.mentor_id = e.member_id
+        WHERE
+            e.member_id = #{menteeId}
+        AND
+            m.status = 'COMPLETED'
+        ORDER BY
+            m.created_at DESC
+    </select>
+
+    <!-- 마이페이지 관련 메서드 -->
+    <select id="selectMentoringHistory" resultType="MyPageMentoringsResponseDto">
+        SELECT
+            m.mentor_id AS mentorId,
+            mt.mentor_name AS mentorName,
+            mt.mentor_image_url AS imageUrl,
+            mr.subject AS subject,
+            mr.date::date AS date
+        FROM
+            mentorings m
+        LEFT OUTER JOIN
+            mentors mt ON m.mentor_id = mt.mentor_id
+        LEFT OUTER JOIN
+            mentorings_reservation mr ON m.reservation_id = mr.reservation_id
+        WHERE
+            m.mentee_id = #{memberId}
+        ORDER BY
+            m.created_at DESC
+    </select>
+
+    <select id="selectMentoringCount" resultType="int">
+        SELECT
+            COUNT(*)
+        FROM
+            mentorings
+        WHERE
+            mentor_id = #{mentorId}
+    </select>
+
+<!--    selectMentoringListInMonthByMemberId-->
+    <select id="selectMentoringListInMonthByMemberId" resultType="CalendarItemMentoringByDateDto">
+        SELECT
+            m.created_at::date AS date,
+            m.mentoring_id AS mentoringId,
+            o.mentor_name AS mentorName
+        FROM
+            mentorings m
+        LEFT OUTER JOIN
+            mentors o ON m.mentor_id = o.mentor_id
+        WHERE
+            m.created_at::date BETWEEN CAST(#{startDate} AS DATE) AND CAST(#{endDate} AS DATE)
+        AND
+            m.mentee_id = #{memberId}
+    </select>
+
+    <select id="selectMentorIdByMemberId">
+        SELECT
+            mentor_id
+        FROM
+            mentors
+        WHERE
+            member_id = #{mentorMemberId}
+    </select>
+</mapper>

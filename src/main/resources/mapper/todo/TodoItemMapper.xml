@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.takoyakki.backend.domain.todo.repository.TodoItemMapper">
+
+    <!-- 할 일 항목 등록 -->
+    <insert id="insertTodoItem"
+            parameterType="com.takoyakki.backend.domain.todo.dto.TodoCreateRequestDto">
+        INSERT INTO todos (
+            member_id,
+            contents,
+            date,
+            time,
+            is_important,
+            created_at,
+            updated_at
+        )
+        VALUES (
+                   #{memberId},
+                   #{contents},
+                    CAST(#{date} AS DATE),
+                   #{time},
+                   #{isImportant},
+                   NOW(),
+                   NOW()
+               )
+    </insert>
+
+    <!-- 할 일 항목 수정 -->
+    <update id="updateTodoItem">
+        UPDATE
+            todos
+        SET
+            contents       = #{request.contents},
+            date          = #{request.date},
+            time          = #{request.time},
+            is_important  = #{request.isImportant},
+            updated_at    = NOW()
+        WHERE
+            id = #{id}
+          AND deleted_at IS NULL
+    </update>
+
+    <!-- 할 일 항목 소프트 삭제 -->
+    <update id="softDeleteTodoItem">
+        UPDATE
+            todos
+        SET
+            deleted_at = #{deletedAt}
+        WHERE
+            id = #{id}
+          AND deleted_at IS NULL
+    </update>
+
+</mapper>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.takoyakki.backend.domain.dailyLearning.repository.DailyLearningMapper">
+
+    <select id="selectDailyLearning" resultType="String" parameterType="java.time.LocalDate">
+        SELECT
+            subject
+        FROM
+            daily_learning
+        WHERE
+            date = CAST(#{date} AS DATE)
+    </select>
+
+    <select id="selectDailyLearningProgress" resultType="ChallengeReviewSelectResponseDto">
+        SELECT *
+        FROM
+        (
+            SELECT
+                subject,
+                TO_CHAR(ROUND((1.0 * SUM(CASE WHEN date &lt;= CURRENT_DATE THEN 1 ELSE 0 END) / COUNT(*)) * 100, 1), 'FM999.0') AS progressRate,
+                MAX("date") AS latestDate
+            FROM
+                PUBLIC.daily_learning
+            GROUP BY subject
+        ) AS sub
+        ORDER BY latestDate
+    </select>
+
+    <select id="selectCurriculumInMonthByMemberId" resultType="CalendarItemCurriculumByDateDto">
+        SELECT
+            date,
+            title,
+            subject
+        FROM
+            daily_learning
+        WHERE
+            date BETWEEN #{startDate} AND #{endDate};
+    </select>
+</mapper>

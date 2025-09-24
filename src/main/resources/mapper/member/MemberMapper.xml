@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.takoyakki.backend.domain.myPage.repository.MemberMapper">
+
+    <resultMap id="MemberSelectResponseMap" type="MemberSelectResponseDto">
+        <result property="memberId" column="member_id" />
+        <result property="memberName" column="member_name" />
+        <result property="phoneNumber" column="phone_number" />
+        <result property="currentLevel" column="current_level" />
+        <result property="usablePoints" column="usable_points" />
+        <result property="totalXp" column="total_xp" />
+        <result property="memberImageUrl" column="member_image_url" />
+    </resultMap>
+
+    <!-- ✅ currentLevel을 total_xp 기준으로 실시간 계산 -->
+    <select id="selectMemberInfo" parameterType="java.lang.Long" resultMap="MemberSelectResponseMap">
+        SELECT
+            member_id,
+            id,
+            password,
+            member_name,
+            role,
+            email,
+            nickname,
+            phone_number,
+            CASE
+                WHEN total_xp >= 1300 THEN 9
+                WHEN total_xp >= 1000 THEN 8
+                WHEN total_xp >= 700 THEN 7
+                WHEN total_xp >= 500 THEN 6
+                WHEN total_xp >= 400 THEN 5
+                WHEN total_xp >= 300 THEN 4
+                WHEN total_xp >= 200 THEN 3
+                WHEN total_xp >= 100 THEN 2
+                ELSE 1
+                END AS current_level,
+            usable_points,
+            total_xp,
+            member_image_url
+        FROM
+            members
+        WHERE
+            member_id = #{memberId}
+    </select>
+
+    <select id="selectMemberInfoByAccountId" parameterType="java.lang.String" resultMap="MemberSelectResponseMap">
+        SELECT
+            member_id,
+            id,
+            password,
+            member_name,
+            role,
+            email,
+            nickname,
+            phone_number,
+            CASE
+                WHEN total_xp >= 1300 THEN 9
+                WHEN total_xp >= 1000 THEN 8
+                WHEN total_xp >= 700 THEN 7
+                WHEN total_xp >= 500 THEN 6
+                WHEN total_xp >= 400 THEN 5
+                WHEN total_xp >= 300 THEN 4
+                WHEN total_xp >= 200 THEN 3
+                WHEN total_xp >= 100 THEN 2
+                ELSE 1
+                END AS current_level,
+            usable_points,
+            total_xp,
+            member_image_url
+        FROM
+            members
+        WHERE
+            id = #{accountId}
+    </select>
+
+    <update id="updateMemberInfo" parameterType="MemberUpdateRequestDto">
+        UPDATE
+            members
+        SET
+            password = #{password},
+            email = #{email},
+            nickname = #{nickname},
+            phone_number = #{phoneNumber}
+        WHERE
+            member_id = #{memberId}
+    </update>
+
+    <update id="getPointsByDailyChallengeRank">
+        UPDATE
+            members
+        SET
+            usable_points = usable_points + #{points},
+            total_xp = total_xp + #{points}
+        WHERE
+            member_id = #{memberId}
+    </update>
+
+    <update id="getPointsByStudyLog">
+        UPDATE
+            members
+        SET
+            usable_points = usable_points + #{points},
+            total_xp = total_xp + #{points}
+        WHERE
+            member_id = #{memberId}
+    </update>
+</mapper>

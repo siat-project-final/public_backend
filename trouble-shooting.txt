@@ -1,0 +1,29 @@
+@권태현
+
+#1 AI 문제 챌린지 : anthropic 서버에 문제 생성을 위해 api 요청시 인증서 문제 발생
+> PIXX 인증서 오류 발생
+> keytool을 이용해 사용 자바 폴더로 이동하여
+
+keytool -importcert -keystore $JAVA_HOME/lib/security/cacerts -alias intermediate -file intermediate.crt]
+
+명령어를 통해 인증서 등록
+> 루트 인증서도 등록해야해서
+Somansa Root CA를 somansa-root-ca.crt 파일로 저장한 후
+
+keytool -importcert -trustcacerts \
+  -keystore "$JAVA_HOME/lib/security/cacerts" \
+  -storepass changeit \
+  -alias somansa-root \
+  -file somansa-root-ca.crt
+
+명령어를 통해 JVM truststore에 등록
+> 이후 통신 정상
+
+#2 myBatis 자동타입변환시 dto에 존재하지 않는 칼럼 select시 오류 발생
+> dto에 memberName 칼럼 존재하나 mapper에서 memberName 칼럼을 사용하지 않으면 타입 변환시 DATE to INTEGER처럼 자동 변환시 오류 발생
+> 매퍼에 정상적으로 칼럼 모두 추가 후 해결
+
+#3 챌린지 복습 리스트 조회시 통신이 30초 이상 걸리는 문제 발생
+> 테스트를 위해 포스트맨 확인 결과 API 호출시 통산 시간 중 ttfb가 대부분 > 서버 응답 시간 파악
+> 서버 응답 확인 결과 슬로우 쿼리로 인한 문제로 파악 완료
+> 집계함수 사용시 인덱스를 추가해 칼럼 접근 시간을 줄이고 쿼리 구조에 인라인 뷰 서브쿼리를 추가해 날짜 full scan을 줄여서 해결

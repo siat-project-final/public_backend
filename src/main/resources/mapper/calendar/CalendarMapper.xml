@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.takoyakki.backend.domain.calendar.repository.CalendarMapper">
+
+
+
+    <!-- 일정 목록 조회 -->
+    <select id="selectSchedules" resultType="com.takoyakki.backend.domain.calendar.dto.response.CalendarResponseDto">
+        SELECT
+        schedule_id AS scheduleId,
+        member_id AS memberId,
+        title,
+        content,
+        start_datetime AS startDatetime,
+        end_datetime AS endDatetime,
+        is_all_day AS isAllDay,
+        color_code AS colorCode,
+        is_deleted AS isDeleted,
+        created_at AS createdAt,
+        updated_at AS updatedAt
+        FROM schedules
+        WHERE member_id = #{memberId}
+          AND start_datetime &gt;= CAST(#{startDate} AS TIMESTAMP)
+          AND end_datetime &lt;= CAST(#{endDate} AS TIMESTAMP)
+        AND is_deleted = FALSE
+    </select>
+
+
+    <!-- 일정 상세 조회 -->
+    <select id="selectScheduleById" resultType="com.takoyakki.backend.domain.calendar.dto.response.CalendarResponseDto">
+        SELECT *
+        FROM schedules
+        WHERE schedule_id = #{scheduleId}
+          AND is_deleted = FALSE
+    </select>
+
+    <!-- 일정 추가 -->
+    <insert id="insertSchedule" parameterType="com.takoyakki.backend.domain.calendar.dto.request.CalendarRequestDto" useGeneratedKeys="true" keyProperty="scheduleId">
+        INSERT INTO schedules (
+            member_id, title, content,
+            start_datetime, end_datetime,
+            is_all_day, color_code
+        )
+        VALUES (
+                   #{memberId}, #{title}, #{content},
+                   #{startDatetime}, #{endDatetime},
+                   #{isAllDay}, #{colorCode}
+               )
+    </insert>
+
+    <!-- 일정 수정 -->
+    <update id="updateSchedule"
+            parameterType="com.takoyakki.backend.domain.calendar.dto.request.CalendarRequestDto">
+
+        UPDATE schedules
+        SET
+            title = #{title},
+            content = #{content},
+            start_datetime = #{startDatetime},
+            end_datetime = #{endDatetime},
+            is_all_day = #{isAllDay},
+            color_code = #{colorCode},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE schedule_id = #{scheduleId}
+    </update>
+
+
+    <!-- 일정 삭제 (is_deleted = true 처리) -->
+    <update id="deleteSchedule">
+        <!--    deleteSchedule-->
+        UPDATE schedules
+        SET is_deleted = TRUE,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE schedule_id = #{scheduleId}
+    </update>
+
+</mapper>

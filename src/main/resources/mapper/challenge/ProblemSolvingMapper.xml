@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.takoyakki.backend.domain.challenge.repository.ProblemSolvingMapper">
+    <insert id="insertProblemSolving" parameterType="java.util.List">
+        INSERT INTO problem_solving
+        (
+        problem_id,
+        member_id,
+        submit_answer,
+        is_correct,
+        points,
+        date
+        )
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.problemId},
+            #{item.memberId},
+            #{item.answer},
+            #{item.isCorrect},
+            #{item.points},
+            NOW()
+            )
+        </foreach>
+    </insert>
+
+    <select id="calculateChallengeRank" resultType="com.takoyakki.backend.domain.challenge.dto.response.ChallengeRankResponseDto">
+        SELECT
+            ps.member_id AS memberId,
+            m.member_name AS memberName,
+            SUM(ps.points) AS totalPoints,
+            RANK() OVER (ORDER BY SUM(ps.points) DESC) AS rank,
+            ps.date::date AS date,
+            p.subject AS subject
+        FROM
+            problem_solving ps
+        LEFT OUTER JOIN
+            members m ON ps.member_id = m.member_id
+        LEFT OUTER JOIN
+            problems p ON ps.problem_id = p.problem_id
+        WHERE
+            ps.is_deleted = FALSE
+          AND
+            ps.date::date = CAST(#{date} AS DATE)
+        GROUP BY
+            ps.member_id, m.member_name, ps.date::date, p.subject;
+    </select>
+
+    <select id="selectChallengeDetail"
+            resultType="com.takoyakki.backend.domain.myPage.dto.response.MyPageProblemSelectResponseDto">
+
+        p.difficulty AS difficulty,
+            p.title AS title,
+            p.contents AS content,
+            ps.submit_answer AS submitAnswer,
+            p.correct_answer AS correctAnswer,
+            ps.is_correct AS isCorrect,
+            ps.points AS points
+        FROM
+            problem_solving ps
+                LEFT OUTER JOIN
+            problems p ON ps.problem_id = p.problem_id
+        WHERE
+            ps.date::date = #{date}
+          AND
+            ps.member_id = #{memberId}
+        ORDER BY
+            ps.date DESC
+    </select>
+
+    <select id="selectChallengeReviewProblem" resultType="com.takoyakki.backend.domain.challenge.dto.response.ProblemsSelectResponseDto">
+        SELECT
+            p.problem_id AS problemId,
+            p.title AS title,
+            p.correct_answer AS answer,
+            p.difficulty AS points,
+            p.contents,
+            p.subject,
+            p.choices
+        FROM
+            problem_solving ps
+                LEFT OUTER JOIN
+            problems p ON ps.problem_id = p.problem_id
+        WHERE
+            p.subject ILIKE #{subject}
+          AND
+            ps.member_id = #{memberId}
+    </select>
+
+    <select id="countSubmissionsByMemberAndDate" resultType="int">
+        SELECT COUNT(*)
+        FROM problem_solving
+        WHERE member_id = #{memberId}
+          AND date::date = #{date}
+          AND is_deleted = FALSE
+    </select>
+
+    <select id="selectScoringDetailByMemberAndDate" resultType="com.takoyakki.backend.domain.challenge.dto.response.ProblemSolvingResultResponseDto">
+        SELECT
+            p.problem_id AS problemId,
+            p.title AS title,
+            p.difficulty AS difficulty,
+            p.correct_answer AS correctAnswer,
+            ps.submit_answer AS submitAnswer,
+            ps.is_correct AS correct,
+            p.choices AS options,
+            p.type AS type
+        FROM
+            problem_solving ps
+                LEFT JOIN
+            problems p ON ps.problem_id = p.problem_id
+        WHERE
+            ps.member_id = #{memberId}
+          AND ps.date::date = #{date}
+          AND ps.is_deleted = FALSE
+    </select>
+
+    <!-- 추가된 메서드 -->
+    <select id="countCorrectByMemberAndProblems" resultType="int">
+        SELECT COUNT(*)
+        FROM problem_solving
+        WHERE member_id = #{memberId}
+        AND problem_id IN
+        <foreach collection="problemIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        AND is_correct = true
+    </select>
+
+    <select id="sumPointsByMember" resultType="int">
+        SELECT COALESCE(SUM(points), 0)
+        FROM problem_solving
+        WHERE member_id = #{memberId}
+    </select>
+
+
+</mapper>

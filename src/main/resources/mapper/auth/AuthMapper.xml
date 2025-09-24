@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+    <mapper namespace="com.takoyakki.backend.common.auth.mapper.AuthMapper">
+
+        <resultMap id="LoginAuthCheckMap" type="LoginAuthCheckDto">
+            <result property="memberName" column="member_name" />
+            <result property="memberId" column="member_id" />
+        </resultMap>
+
+        <resultMap id="SignUpDuplicationCheckMap" type="SignUpDuplicationCheckDto">
+            <result property="memberName" column="member_name" />
+            <result property="phoneNumber" column="phone_number" />
+        </resultMap>
+
+        <select id="selectStudentInfo" parameterType="java.lang.String">
+            SELECT
+                COUNT(*)
+            FROM
+                students
+            WHERE
+                phone_number = #{phoneNumber}
+            AND
+                student_name = #{memberName}
+        </select>
+
+        <select id="checkSignUpDuplication" resultMap="SignUpDuplicationCheckMap">
+            SELECT
+                member_name,
+                phone_number
+            FROM
+                members
+            WHERE
+                phone_number = #{phoneNumber}
+            OR
+                member_name = #{memberName}
+        </select>
+
+        <insert id="signUp" parameterType="SignUpRequestDto">
+            INSERT INTO members
+                (
+                    id,
+                    member_name,
+                    password,
+                    phone_number,
+                    nickname,
+                    role,
+                    email
+                )
+            VALUES
+                (
+                    #{id},
+                    #{memberName},
+                    #{password},
+                    #{phoneNumber},
+                    #{nickname},
+                    'TRAINEE',
+                    #{email}
+                )
+        </insert>
+
+        <select id="selectUserInfo" parameterType="java.lang.String" resultMap="LoginAuthCheckMap">
+            SELECT
+                id,
+                member_name,
+                member_id,
+                password,
+                role
+            FROM
+                members
+            WHERE
+                id = #{id}
+        </select>
+    </mapper>

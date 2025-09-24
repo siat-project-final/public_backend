@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0/EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+    <typeAliases>
+        <!-- 인증 관련 DTO -->
+        <typeAlias alias="LoginRequestDto" type="com.takoyakki.backend.common.auth.dto.LoginRequestDto"/>
+        <typeAlias alias="LoginAuthCheckDto" type="com.takoyakki.backend.common.auth.dto.LoginAuthCheckDto"/>
+        <typeAlias alias="LoginResponseDto" type="com.takoyakki.backend.common.auth.dto.LoginResponseDto"/>
+        <typeAlias alias="SignUpRequestDto" type="com.takoyakki.backend.common.auth.dto.SignUpRequestDto"/>
+        <typeAlias alias="SignUpDuplicationCheckDto" type="com.takoyakki.backend.common.auth.dto.SignUpDuplicationCheckDto"/>
+
+        <!-- 멤버 관련 DTO -->
+        <typeAlias alias="MemberSelectResponseDto" type="com.takoyakki.backend.domain.myPage.dto.MemberSelectResponseDto"/>
+        <typeAlias alias="MemberUpdateRequestDto" type="com.takoyakki.backend.domain.myPage.dto.MemberUpdateRequestDto"/>
+
+        <!-- 챌린지 문제 관련 DTO -->
+        <typeAlias alias="ProblemsInsertRequestDto" type="com.takoyakki.backend.domain.challenge.dto.request.ProblemsInsertRequestDto"/>
+        <typeAlias alias="ProblemsSelectResponseDto" type="com.takoyakki.backend.domain.challenge.dto.response.ProblemsSelectResponseDto"/>
+        <typeAlias alias="ProblemSolvingInsertRequestDto" type="com.takoyakki.backend.domain.challenge.dto.request.ProblemSolvingInsertRequestDto"/>
+        <typeAlias alias="ChallengeRankResponseDto" type="com.takoyakki.backend.domain.challenge.dto.response.ChallengeRankResponseDto"/>
+        <typeAlias alias="ProblemSolvingSubmitResponseDto" type="com.takoyakki.backend.domain.challenge.dto.response.ProblemSolvingSubmitResponseDto"/>
+        <typeAlias alias="ProblemSolvingResultResponseDto" type="com.takoyakki.backend.domain.challenge.dto.response.ProblemSolvingResultResponseDto"/>
+
+        <typeAlias alias="ChallengeReviewSelectResponseDto" type="com.takoyakki.backend.domain.challenge.dto.response.ChallengeReviewSelectResponseDto"/>
+
+        <!-- 멘토링 예약 관련 DTO -->
+        <typeAlias alias="MentoringReservationAcceptResponseDto" type="com.takoyakki.backend.domain.mentoring.dto.reservation.MentoringReservationAcceptResponseDto"/>
+        <typeAlias alias="MentoringReservationResponseDto" type="com.takoyakki.backend.domain.mentoring.dto.reservation.MentoringReservationResponseDto"/>
+
+        <!-- 멘토링 완료 및 상세 DTO -->
+        <typeAlias alias="MentoringCompleteRequestDto" type="com.takoyakki.backend.domain.mentoring.dto.mentoring.MentoringCompleteRequestDto"/>
+        <typeAlias alias="MentoringResponseDto" type="com.takoyakki.backend.domain.mentoring.dto.mentoring.MentoringResponseDto"/>
+
+        <typeAlias alias="MenteeReservationRequestDto" type="com.takoyakki.backend.domain.mentoring.dto.reservation.MenteeReservationRequestDto"/>
+
+        <!-- 투두리스트 관련 DTO -->
+        <typeAlias alias="TodoCreateRequestDto" type="com.takoyakki.backend.domain.todo.dto.TodoCreateRequestDto"/>
+        <typeAlias alias="TodoSelectResponseDto" type="com.takoyakki.backend.domain.todo.dto.TodoSelectResponseDto"/>
+        <typeAlias alias="TodoUpdateRequestDto" type="com.takoyakki.backend.domain.todo.dto.TodoUpdateRequestDto"/>
+
+        <!-- 학습일지 DTO -->
+        <typeAlias alias="StudyDiaryInsertRequestDto" type="com.takoyakki.backend.domain.studyDiary.dto.request.StudyDiaryInsertRequestDto"/>
+        <typeAlias alias="StudyDiarySelectResponseDto" type="com.takoyakki.backend.domain.studyDiary.dto.response.StudyDiarySelectResponseDto"/>
+        <typeAlias alias="StudyDiaryUpdateRequestDto" type="com.takoyakki.backend.domain.studyDiary.dto.request.StudyDiaryUpdateRequestDto"/>
+        <typeAlias alias="StudyDiarySelectPublicListResponseDto" type="com.takoyakki.backend.domain.studyDiary.dto.response.StudyDiarySelectPublicListResponseDto"/>
+
+        <typeAlias alias="DiaryCommentsSelectResponseDto" type="com.takoyakki.backend.domain.studyDiary.dto.response.DiaryCommentsSelectResponseDto"/>
+        <typeAlias alias="DiaryCommentsInsertRequestDto" type="com.takoyakki.backend.domain.studyDiary.dto.request.DiaryCommentsInsertRequestDto"/>
+
+
+        <!-- 마이페이지 DTO -->
+        <typeAlias alias="MyPageProblemSelectResponseDto" type="com.takoyakki.backend.domain.myPage.dto.response.MyPageProblemSelectResponseDto"/>
+        <typeAlias alias="MyPageMentoringsResponseDto" type="com.takoyakki.backend.domain.myPage.dto.response.MyPageMentoringsResponseDto"/>
+
+        <!-- 캘린더 DTO -->
+        <typeAlias alias="CalendarItemMentoringByDateDto" type="com.takoyakki.backend.domain.calendar.dto.response.CalendarItemMentoringByDateDto"/>
+        <typeAlias alias="CalendarItemMentoringReservationByDateDto" type="com.takoyakki.backend.domain.calendar.dto.response.CalendarItemMentoringReservationByDateDto"/>
+        <typeAlias alias="CalendarItemTodoByDateDto" type="com.takoyakki.backend.domain.calendar.dto.response.CalendarItemTodoByDateDto"/>
+        <typeAlias alias="CalendarItemStudyDiaryByDateDto" type="com.takoyakki.backend.domain.calendar.dto.response.CalendarItemStudyDiaryByDateDto"/>
+        <typeAlias alias="CalendarItemCurriculumByDateDto" type="com.takoyakki.backend.domain.calendar.dto.response.CalendarItemCurriculumByDateDto"/>
+
+        <!-- 알림 DTO -->
+        <typeAlias alias="NotificationChallengeToMenteeDto" type="com.takoyakki.backend.domain.notification.dto.NotificationChallengeToMenteeDto"/>
+        <typeAlias alias="NotificationToMenteeSelectResponseDto" type="com.takoyakki.backend.domain.notification.dto.response.NotificationToMenteeSelectResponseDto"/>
+        <typeAlias alias="NotificationToMentorSelectResponseDto" type="com.takoyakki.backend.domain.notification.dto.response.NotificationToMentorSelectResponseDto"/>
+
+    </typeAliases>
+</configuration>
